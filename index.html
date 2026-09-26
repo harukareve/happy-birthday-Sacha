@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Night in Ni-chome</title>
+<link rel="stylesheet" href="style.css">
+<script src="game.js" defer></script>
+</head>
+<body>
+<main>
+<section id="game" aria-label="Ni-chome point-and-click adventure">
+<div id="scenes">
+<img id="bar" class="scene active" src="backgrounds/bar-overview.png" alt="A warm bar with a DJ on the left, a black cat behind the counter, and a drag queen on the right.">
+<img id="dj" class="scene" src="backgrounds/dj-closeup.png" alt="The DJ at the mixing console." aria-hidden="true">
+<img id="cat" class="scene" src="backgrounds/bartender-cat-closeup.png" alt="The black cat bartender." aria-hidden="true">
+<img id="drag-queen" class="scene" src="backgrounds/drag-queen-closeup.png" alt="The drag queen holds a ball marked 6001." aria-hidden="true">
+<img id="bar-entrance" class="scene" src="backgrounds/bar-entrance-overview.png" alt="The bar entrance under a glowing pink cat sign." aria-hidden="true">
+<img id="parking-lot" class="scene" src="backgrounds/parkinglot-overview.png" alt="A parking lot beside a colorful graffiti wall." aria-hidden="true">
+<img id="restaurant-entrance" class="scene" src="backgrounds/restaurant-entrance-overview.png" alt="A Thai restaurant entrance with lockers beside the door." aria-hidden="true">
+<img id="railing" class="scene" src="backgrounds/bar-entrance-railing-closeup.png" alt="A close-up of the ridged metal post outside the bar." aria-hidden="true">
+<img id="locker-closed" class="scene" src="backgrounds/restaurant-entrance-locker-closed.png" alt="Locker 05 with a numeric keypad." aria-hidden="true">
+<img id="locker-open" class="scene" src="backgrounds/restaurant entrance-locker-opened.png" alt="Locker 05 standing open." aria-hidden="true">
+<img id="restaurant-interior" class="scene" src="backgrounds/restaurant-interior-overview.png" alt="A warm Thai restaurant with a guest seated at a table on the right." aria-hidden="true">
+<img id="dining-table" class="scene" src="backgrounds/dinning-table-closeup.png" alt="A guest sitting across the table with a pitcher and glasses of drinks." aria-hidden="true">
+<img id="table-drinking" class="scene" src="backgrounds/dinning-table-drinking.png" alt="The guest takes a drink." aria-hidden="true">
+<img id="table-disgusted" class="scene" src="backgrounds/dinning-table-disgusted.png" alt="The guest grimaces at the taste." aria-hidden="true">
+<img id="table-finished" class="scene" src="backgrounds/dinning-table-finished.png" alt="The guest holds up an empty glass after finishing the drink." aria-hidden="true">
+<img id="dj-drinking" class="scene" src="backgrounds/dj-driking.png" alt="The DJ drinks the Orange-Gris." aria-hidden="true">
+<img id="dj-drunk" class="scene" src="backgrounds/dj-drunk.png" alt="The DJ looks tipsy and pleased." aria-hidden="true">
+<img id="dj-gone" class="scene" src="backgrounds/dj-disappear.png" alt="The DJ has disappeared, leaving the console unattended." aria-hidden="true">
+<img id="dj-console" class="scene" src="backgrounds/dj-console.png" alt="A close-up of the DJ control console." aria-hidden="true">
+<img id="party" class="scene" src="backgrounds/bar-overview-party.png?v=aaf18424ee8a" alt="The bar is decorated for a joyful birthday party." aria-hidden="true">
+</div>
+<p id="prompt" hidden aria-live="polite"></p>
+<section id="console-puzzle" aria-label="DJ console puzzle" hidden>
+<div id="emoji-screen"><span id="left-emoji" role="img" aria-label="Cat">🐱</span><span id="right-emoji" role="img" aria-label="Wizard">🧙</span></div>
+<button id="cycle-left" aria-label="Change left icon">↻</button>
+<button id="cycle-right" aria-label="Change right icon">↻</button>
+<button id="play-music" class="primary" disabled>▶ Play</button>
+</section>
+<div id="ending-mementos" hidden aria-label="Memories of tonight">
+<img src="items/item-hat.PNG" alt="Birthday hat"><img src="items/item-candle.PNG" alt="Candles"><img src="items/item-glass.PNG" alt="Wine glasses"><img src="items/item-orange-gris.PNG" alt="Orange-Gris">
+</div>
+<section id="birthday-ending" hidden aria-label="Birthday celebration"><h1 tabindex="-1" id="birthday-title">HAPPY BIRTHDAY SACHA!</h1><p class="signature">from Jiawen</p><button id="music-toggle" class="primary">Pause music</button><p id="music-error" hidden>Music couldn't start. Try playing it again.</p></section>
+<audio id="september" src="September.mp3" preload="none"></audio>
+<button id="console-hotspot" class="hotspot" aria-label="Inspect the DJ console" hidden><span>Look closer</span></button>
+<button id="back-to-dj-booth" class="primary navigation-button" hidden>← Back</button>
+<button id="dj-hotspot" class="hotspot" aria-label="Talk to the DJ" hidden><span>Talk to the DJ</span></button>
+<button id="cat-hotspot" class="hotspot" aria-label="Talk to the black cat" hidden><span>Talk to the cat</span></button>
+<button id="drag-queen-hotspot" class="hotspot" aria-label="Look at the drag queen" hidden><span>Look closer</span></button>
+<button id="jasmine-hotspot" class="hotspot" aria-label="Talk to Jasmine Wind" hidden><span>Talk to Jasmine Wind</span></button>
+<button id="back-to-bar" class="primary" hidden>← Back to bar</button>
+<div id="parking-interactions" hidden>
+<button id="drunk-hotspot" class="hotspot" aria-label="Talk to the drunk man"></button>
+<p id="drunk-bubble" hidden aria-live="polite">@#%… *!? ~&amp;#… %$?!</p>
+<button id="fox-hotspot" class="hotspot graffiti" aria-label="Touch the fox graffiti"></button>
+<button id="butterfly-hotspot" class="hotspot graffiti" aria-label="Touch the butterfly graffiti"></button>
+<button id="hat-hotspot" class="hotspot graffiti" aria-label="Touch the birthday hat graffiti"></button>
+<p id="hat-reward" class="item-reward" hidden role="status">You found a birthday hat!</p>
+<div id="graffiti-progress" hidden role="img" aria-label="Graffiti sequence: zero of three"><i></i><i></i><i></i></div>
+</div>
+<button id="toast-glass" class="hotspot" aria-label="Look at your drink" hidden></button>
+<button id="cheers" class="primary drink-action" hidden>Cheers!</button>
+<button id="finish-drink" class="primary drink-action" hidden>Finish the drink</button>
+<button id="collect-glass" class="hotspot" aria-label="Collect empty glass" hidden></button>
+<p id="glass-reward" class="item-reward" role="status" hidden>You found the wine glasses!</p>
+<button id="restaurant-door" class="hotspot" aria-label="Enter the restaurant" hidden><span>Enter the restaurant</span></button>
+<button id="table-hotspot" class="hotspot" aria-label="Look at the dining table" hidden><span>Look closer</span></button>
+<button id="leave-restaurant" class="primary navigation-button" hidden>← Back to restaurant entrance</button>
+<button id="back-to-interior" class="primary navigation-button" hidden>← Back to restaurant</button>
+<button id="locker-hotspot" class="hotspot" aria-label="Inspect locker 05" hidden></button>
+<div id="locker-controls" hidden>
+<output id="locker-display" aria-live="polite" aria-label="Locker code">_ _ _ _</output>
+<div id="locker-keypad" aria-label="Locker keypad">
+<button class="locker-key" data-digit="1" aria-label="Digit 1"></button>
+<button class="locker-key" data-digit="2" aria-label="Digit 2"></button>
+<button class="locker-key" data-digit="3" aria-label="Digit 3"></button>
+<button class="locker-key" data-digit="4" aria-label="Digit 4"></button>
+<button class="locker-key" data-digit="5" aria-label="Digit 5"></button>
+<button class="locker-key" data-digit="6" aria-label="Digit 6"></button>
+<button class="locker-key" data-digit="7" aria-label="Digit 7"></button>
+<button class="locker-key" data-digit="8" aria-label="Digit 8"></button>
+<button class="locker-key" data-digit="9" aria-label="Digit 9"></button>
+<button class="locker-key" data-digit="0" aria-label="Digit 0"></button>
+</div>
+</div>
+<button id="collect-candle" aria-label="Collect candle" hidden><img src="items/item-candle.PNG" alt="Candle inside the locker"></button>
+<button id="back-to-restaurant" class="primary navigation-button" hidden>← Back to restaurant entrance</button>
+<p id="candle-reward" class="item-reward" role="status" hidden>You found a candle!</p>
+<p id="beer-reward" class="item-reward" role="status" hidden>You found a beer!</p>
+<aside id="inventory" aria-label="Collected items" hidden>
+<img id="inventory-opened" src="items/item-beer-opened.PNG" alt="Opened beer" hidden>
+<img id="inventory-orange" src="items/item-orange-gris.PNG" alt="Orange-Gris" hidden>
+<img id="inventory-beer" src="items/item-beer.PNG" alt="Beer collected" title="Beer" hidden>
+<img id="inventory-glass" src="items/item-glass.PNG" alt="Glass collected" title="Glass" hidden>
+<img id="inventory-candle" src="items/item-candle.PNG" alt="Candle collected" title="Candle" hidden>
+<img id="inventory-hat" src="items/item-hat.PNG" alt="Birthday hat collected" title="Birthday hat" hidden>
+</aside>
+<button id="open-beer" class="primary drink-action" hidden>Open the beer</button>
+<img id="opening-bottle" src="items/item-beer.PNG" alt="Opening the beer against the post" hidden>
+<p id="drink-reward" class="item-reward" role="status" hidden></p>
+<section id="drunk-dialogue" hidden aria-label="Drunk man dialogue"><p id="drunk-line">im writing your name on the wall... it feels like magic!</p><p id="unopened-hint">the beer is not opened yet.</p><button id="give-beer" class="primary">Give him the beer</button><button id="close-drunk" class="primary">Close</button></section>
+<button id="collect-orange" aria-label="Collect Orange-Gris" hidden><img src="items/item-orange-gris.PNG" alt="Orange-Gris ready to collect"></button>
+<button id="railing-hotspot" class="hotspot" aria-label="Look at the railing" hidden><span>Look closer</span></button>
+<p id="railing-caption" hidden aria-live="polite">looks pretty familiar...</p>
+<button id="back-to-entrance" class="primary navigation-button" hidden>← Back to bar entrance</button>
+<button id="leave-bar" class="primary navigation-button" hidden>Leave the bar →</button>
+<button id="enter-bar" class="hotspot" aria-label="Enter the bar" hidden><span>Enter the bar</span></button>
+<p id="location-label" class="eyebrow" hidden aria-live="polite"></p>
+<nav id="outdoor-navigation" aria-label="Nearby places" hidden>
+<button id="previous-scene" class="scene-arrow" aria-label="Previous location" hidden>←</button>
+<button id="next-scene" class="scene-arrow" aria-label="Next location" hidden>→</button>
+</nav>
+<div id="title-screen" class="overlay"><div class="title-card"><p class="eyebrow">ONE NIGHT IN TOKYO</p><h1>A Night<br>in Ni-chome</h1><p>October 5. Somewhere in Nichome, a DJ owes someone a very good night.<br>Let's make sure he gets one.</p><button id="start" class="primary">Start the Night</button></div></div>
+<section id="dialogue" hidden aria-label="Character dialogue"><div><p id="speaker" class="eyebrow"></p><p id="line" aria-live="polite"></p></div><button id="continue" class="primary">Continue →</button></section>
+<p id="asset-error" role="alert" hidden>A scene image could not be loaded. Please check the backgrounds folder and reload.</p>
+</section>
+</main>
+</body>
+</html>

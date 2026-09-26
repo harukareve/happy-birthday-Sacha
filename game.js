@@ -42,6 +42,8 @@
     $('right-emoji').setAttribute('aria-label', rightIcons[state.rightIcon][1]);
     $('play-music').disabled = state.leftIcon !== 0 || state.rightIcon !== 0;
     $('birthday-ending').hidden = !['ending-reveal', 'ending'].includes(state.stage);
+    // Reveal both effects with the birthday title, before the party backdrop fades in.
+    $('party-effects').hidden = $('birthday-ending').hidden;
     $('ending-mementos').hidden = state.stage !== 'ending-mementos';
     $('console-hotspot').hidden = !(state.stage === 'console-explore' && state.scene === 'dj-gone');
     $('back-to-dj-booth').hidden = !(state.stage === 'console-explore' && state.scene === 'dj-console');
@@ -167,7 +169,21 @@
       render();
     });
   }
+  // Staggered glitter flakes stay behind the dedication and controls.
+  for (let i = 0; i < 150; i++) {
+    const spark = document.createElement('i');
+    spark.style.cssText = `--x:${(i * 37 + 11) % 100}%;--drift:${(i % 2 ? 1 : -1) * (25 + i % 55)}px;--duration:${10 + i % 10}s;--delay:-${i * 1.73}s;--size:${8 + i % 11}px;--tone:${i % 3 === 0 ? '#edb6c5' : '#f6dba5'}`;
+    $('party-glitter').appendChild(spark);
+  }
   const endingWait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  function schedulePartyDance() {
+    setTimeout(() => {
+      if (state.scene !== 'party' || !state.stage.startsWith('ending')) return;
+      $('game').classList.add('party-dancing');
+      state.scene = 'party-dance';
+      render();
+    }, 3000);
+  }
   async function birthdaySequence() {
     $('game').classList.add('ending-transition');
     move('ending-mementos', 'bar');
@@ -186,6 +202,7 @@
     title.style.transform = 'translateY(' + offset + 'px)';
     title.animate([{opacity:0, transform:'translateY(' + offset + 'px) scale(.75)'}, {opacity:1, transform:'translateY(' + offset + 'px) scale(1)'}], {duration:700,easing:'cubic-bezier(.2,.8,.2,1)'});
     move('ending-reveal', 'party');
+    schedulePartyDance();
     await endingWait(900);
     const descent = title.animate([{transform:'translateY(' + offset + 'px)'},{transform:'translateY(0)'}], {duration:2600,easing:'ease-in-out',fill:'forwards'});
     await descent.finished;
@@ -486,6 +503,14 @@
     state.djGone = true;
     state.stage = 'console-explore';
     state.scene = 'dj-console';
+  }
+  if (['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('preview') === 'ending') {
+    state.stage = 'ending';
+    state.scene = 'party';
+    schedulePartyDance();
+    $('birthday-ending').classList.add('show-signature', 'show-music');
+    $('music-toggle').inert = false;
+    $('music-toggle').textContent = 'Play music';
   }
   render();
 })();

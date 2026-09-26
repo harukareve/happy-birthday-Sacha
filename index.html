@@ -30,6 +30,15 @@
 <img id="dj-gone" class="scene" src="backgrounds/dj-disappear.png" alt="The DJ has disappeared, leaving the console unattended." aria-hidden="true">
 <img id="dj-console" class="scene" src="backgrounds/dj-console.png" alt="A close-up of the DJ control console." aria-hidden="true">
 <img id="party" class="scene" src="backgrounds/bar-overview-party.png?v=aaf18424ee8a" alt="The bar is decorated for a joyful birthday party." aria-hidden="true">
+<img id="party-dance" class="scene" src="backgrounds/bar-overview-party-dance.png" alt="The birthday party guests dance together in the bar." aria-hidden="true">
+</div>
+<div id="party-effects" aria-hidden="true" hidden>
+<svg class="mirror-light" viewBox="0 0 1000 750" preserveAspectRatio="none">
+<defs><radialGradient id="beam-fade" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 83) scale(900)"><stop stop-color="#ffe3b0" stop-opacity=".85"/><stop offset=".65" stop-color="#e8a7be" stop-opacity=".32"/><stop offset="1" stop-color="#e8a7be" stop-opacity="0"/></radialGradient></defs>
+<g fill="url(#beam-fade)" class="mirror-rays"><path d="M100 83 L1000 170 L1000 300 Z"/><path d="M100 83 L860 750 L630 750 Z"/><path d="M100 83 L320 750 L175 750 Z"/><path d="M100 83 L0 480 L0 370 Z"/><path d="M100 83 L1000 450 L1000 515 Z"/><path d="M100 83 L520 750 L450 750 Z"/></g>
+<circle class="mirror-glow" cx="100" cy="83" r="28" fill="#ffe0bd"/>
+</svg>
+<div id="party-glitter"></div>
 </div>
 <p id="prompt" hidden aria-live="polite"></p>
 <section id="console-puzzle" aria-label="DJ console puzzle" hidden>

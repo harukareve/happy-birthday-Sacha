@@ -60,8 +60,8 @@
 
 #game.party-dancing .scene{transition:opacity .7s ease-in-out}
 
-/* After the finale settles, glitter spreads across the whole page behind the game. */
+/* Once the party starts dancing, glitter spreads across the whole page behind the game. */
 main{position:relative;z-index:1}
-#page-glitter{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen;animation:party-effects-in 1.5s ease both}
+#page-glitter{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;animation:party-effects-in 1.5s ease both}
 #page-glitter i{top:-4vh;animation-name:page-glitter-drift}
 @keyframes page-glitter-drift{0%{transform:translate(0,0);opacity:0}15%{opacity:.85}38%{opacity:.35}57%{opacity:.95}80%{opacity:.5}100%{transform:translate(var(--drift),108vh) rotate(300deg);opacity:0}}

@@ -229,6 +229,7 @@
       $('game').classList.add('party-dancing');
       state.scene = 'party-dance';
       render();
+      showPageGlitter();
     }, 3000);
   }
   async function birthdaySequence() {
@@ -261,7 +262,6 @@
     render();
     $('birthday-ending').classList.add('show-music');
     $('music-toggle').inert = false;
-    showPageGlitter();
     title.focus({preventScroll:true});
   }
   $('music-toggle').inert = true;
@@ -587,7 +587,6 @@
     $('birthday-ending').classList.add('show-signature', 'show-music');
     $('music-toggle').inert = false;
     $('music-toggle').textContent = 'Play music';
-    showPageGlitter();
   }
   render();
 })();

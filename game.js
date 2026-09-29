@@ -1,6 +1,38 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
+  // Sound effects are preloaded once and restarted from the click that triggers them.
+  const sounds = {};
+  for (const [name, file] of Object.entries({
+    click: 'button-click.wav', passcode: 'passcode.wav', passwordError: 'password-error.flac',
+    locker: 'locker.mp3', itemFound: 'item found.wav', graffiti: 'birthday-hat.wav',
+    clink: 'glass-clink.wav', gulp: 'gulp.wav', disgusted: 'gulp-disgusted.mp3',
+    openBottle: 'open bottle.wav', filling: 'filling-a-bottle.wav', piss: 'Piss.wav',
+    meowQuest: 'meow1.wav', meowReward: 'meow2.wav'
+  })) {
+    sounds[name] = new Audio(encodeURI('Audio/' + file));
+    sounds[name].preload = 'auto';
+  }
+  const stopTimers = {};
+  function playSound(name, { from = 0, duration } = {}) {
+    const sound = sounds[name];
+    clearTimeout(stopTimers[name]);
+    sound.pause();
+    sound.currentTime = from;
+    sound.play().catch(() => {});
+    if (duration) stopTimers[name] = setTimeout(() => stopSound(name), duration);
+  }
+  // Gulps always play twice in a row.
+  let gulpsLeft = 0;
+  sounds.gulp.addEventListener('ended', () => { if (--gulpsLeft > 0) playSound('gulp'); });
+  function playGulps() {
+    gulpsLeft = 2;
+    playSound('gulp');
+  }
+  function stopSound(name) {
+    clearTimeout(stopTimers[name]);
+    sounds[name].pause();
+  }
   // Future chapters use these flags to gate the cat's reward; no items start collected.
   const state = { stage: 'title', scene: 'bar', explorationUnlocked: false,
     graffitiStep: 0, graffitiStarted: false, hatRewardVisible: false, drunkSpeaking: false,
@@ -217,6 +249,11 @@
     title.focus({preventScroll:true});
   }
   $('music-toggle').inert = true;
+  const ownSound = '#cat-hotspot, #drunk-hotspot, .graffiti, .locker-key, #collect-candle, #collect-glass, #collect-orange, #cheers, #open-beer, #give-beer, #play-music';
+  $('game').addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (button && !button.disabled && !button.matches(ownSound)) playSound('click');
+  }, true);
   $('play-music').addEventListener('click', () => {
     if (state.stage !== 'console-explore' || state.scene !== 'dj-console' || state.leftIcon !== 0 || state.rightIcon !== 0) return;
     playSeptember(); // Directly within the user gesture, for browser audio permissions.
@@ -248,12 +285,18 @@
     else if (state.stage === 'explore' && state.scene === 'bar' && state.questTurnedIn) move(state.inventory.orange ? 'dj-offer' : 'dj-hint', 'dj', 'continue');
   });
   $('cat-hotspot').addEventListener('click', () => {
-    if (state.stage === 'meet-cat') move('cat-dialogue', 'cat', 'continue');
-    else if (state.stage === 'explore' && state.scene === 'bar' && questComplete()) move('cat-reward', 'cat', 'continue');
+    if (state.stage === 'meet-cat') {
+      playSound('meowQuest');
+      move('cat-dialogue', 'cat', 'continue');
+    } else if (state.stage === 'explore' && state.scene === 'bar' && questComplete()) {
+      playSound('meowReward');
+      move('cat-reward', 'cat', 'continue');
+    }
   });
   $('continue').addEventListener('click', () => {
     if (state.stage === 'dj-offer' && state.inventory.orange) {
       state.inventory.orange = false;
+      playGulps();
       move('dj-sipping', 'dj-drinking');
       setTimeout(() => move('dj-thanks', 'dj-drunk', 'continue'), 2000);
       return;
@@ -269,6 +312,7 @@
       state.questTurnedIn = true;
       move('explore', 'bar', 'dj-hotspot');
       if (firstBeer) {
+        playSound('itemFound');
         state.beerRewardVisible = true;
         render();
         setTimeout(() => { state.beerRewardVisible = false; render(); }, 3500);
@@ -305,35 +349,40 @@
   }
   $('open-beer').addEventListener('click', () => {
     if (state.stage !== 'explore' || state.scene !== 'railing' || !state.inventory.beer) return;
+    playSound('openBottle');
     move('opening-beer', 'railing');
     setTimeout(() => {
       state.inventory.beer = false;
       state.inventory.opened = true;
       move('explore', 'railing', 'back-to-entrance');
       showDrinkReward('you opened the beer');
-    }, 1600);
+    }, 2100);
   });
   $('give-beer').addEventListener('click', () => {
     if (state.stage !== 'explore' || state.scene !== 'parking-lot' || !state.drunkDialogue || !state.inventory.opened) return;
     state.inventory.opened = false;
     state.stage = 'making-orange';
     render();
+    playSound('filling');
     setTimeout(() => {
+      stopSound('filling');
       state.drunkDialogue = false;
       state.orangeReady = true;
       move('explore', 'parking-lot', 'collect-orange');
-    }, 2000);
+    }, 6000);
   });
   $('collect-orange').addEventListener('click', () => {
     if (state.stage !== 'explore' || state.scene !== 'parking-lot' || !state.orangeReady) return;
     state.orangeReady = false;
     state.inventory.orange = true;
+    playSound('itemFound');
     showDrinkReward('You found an Orange-Gris!');
     $('drunk-hotspot').focus({preventScroll:true});
   });
   $('close-drunk').addEventListener('click', () => { state.drunkDialogue = false; render(); $('drunk-hotspot').focus({preventScroll:true}); });
   $('drunk-hotspot').addEventListener('click', () => {
     if (state.explorationUnlocked && state.stage === 'explore' && state.scene === 'parking-lot') {
+      playSound('piss', { duration: 5000 });
       if (state.questTurnedIn && !state.inventory.orange) state.drunkDialogue = true;
       else state.drunkSpeaking = !state.drunkSpeaking;
       render();
@@ -342,12 +391,14 @@
   graffitiOrder.forEach(name => {
     $(name + '-hotspot').addEventListener('click', () => {
       if (!state.explorationUnlocked || state.stage !== 'explore' || state.scene !== 'parking-lot' || state.inventory.hat) return;
+      playSound('graffiti');
       state.drunkSpeaking = false;
       state.graffitiStarted = true;
       // Every incorrect click resets the sequence, including repeated earlier targets.
       state.graffitiStep = name === graffitiOrder[state.graffitiStep] ? state.graffitiStep + 1 : 0;
       if (state.graffitiStep === graffitiOrder.length) {
         state.inventory.hat = true;
+        playSound('itemFound');
         state.hatRewardVisible = true;
         setTimeout(() => {
           state.hatRewardVisible = false;
@@ -378,8 +429,11 @@
   $('cheers').addEventListener('click', () => {
     if (state.stage !== 'explore' || state.scene !== 'dining-table' || !state.cheersVisible) return;
     state.cheersVisible = false;
+    playSound('clink');
+    setTimeout(playGulps, 400);
     move('drinking', 'table-drinking');
     setTimeout(() => {
+      playSound('disgusted');
       move('drink-reaction', 'table-disgusted');
       setTimeout(() => {
         state.diningPhase = 'disgusted';
@@ -389,6 +443,7 @@
   });
   $('finish-drink').addEventListener('click', () => {
     if (state.stage !== 'explore' || state.scene !== 'table-disgusted') return;
+    playGulps();
     move('drinking', 'table-drinking');
     setTimeout(() => {
       state.diningPhase = 'finished';
@@ -398,6 +453,7 @@
   $('collect-glass').addEventListener('click', () => {
     if (state.stage !== 'explore' || state.scene !== 'table-finished' || state.inventory.glass) return;
     state.inventory.glass = true;
+    playSound('itemFound');
     state.glassRewardVisible = true;
     render();
     $('back-to-interior').focus({preventScroll:true});
@@ -420,16 +476,19 @@
     key.addEventListener('click', () => {
       if (!state.explorationUnlocked || state.stage !== 'explore' || state.scene !== 'locker-closed') return;
       clearTimeout(lockerErrorTimer);
+      playSound('passcode');
       state.lockerError = false;
       state.lockerCode += key.dataset.digit;
       if (state.lockerCode.length === 4) {
         if (state.lockerCode === '6001') {
           state.lockerOpen = true;
+          playSound('locker');
           move('explore', 'locker-open', 'collect-candle');
           return;
         }
         state.lockerCode = '';
         state.lockerError = true;
+        playSound('passwordError');
         lockerErrorTimer = setTimeout(() => { state.lockerError = false; render(); }, 650);
       }
       render();
@@ -438,6 +497,7 @@
   $('collect-candle').addEventListener('click', () => {
     if (!state.explorationUnlocked || state.stage !== 'explore' || state.scene !== 'locker-open' || state.inventory.candle) return;
     state.inventory.candle = true;
+    playSound('itemFound');
     state.candleRewardVisible = true;
     render();
     $('back-to-restaurant').focus({preventScroll:true});

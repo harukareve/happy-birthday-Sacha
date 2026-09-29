@@ -48,14 +48,20 @@
 .mirror-rays{transform-origin:100px 83px;animation:mirror-sweep 8s ease-in-out infinite alternate}
 .mirror-glow{opacity:.08;filter:blur(12px);animation:mirror-shimmer 2.8s ease-in-out infinite alternate}
 #party-glitter{position:absolute;inset:0;overflow:hidden}
-#party-glitter i{position:absolute;left:var(--x);top:-4%;width:var(--size);height:var(--size);border-radius:1px;background:var(--tone);box-shadow:0 0 10px var(--tone);opacity:0;animation:glitter-drift var(--duration) linear var(--delay) infinite}
+#party-glitter i,#page-glitter i{position:absolute;left:var(--x);top:-4%;width:var(--size);height:var(--size);border-radius:1px;background:var(--tone);box-shadow:0 0 10px var(--tone);opacity:0;animation:glitter-drift var(--duration) linear var(--delay) infinite}
 @keyframes party-effects-in{from{opacity:0}to{opacity:1}}
 @keyframes mirror-sweep{0%{transform:rotate(-12deg);opacity:.5}35%{opacity:1}70%{opacity:.55}100%{transform:rotate(15deg);opacity:.95}}
 @keyframes mirror-shimmer{from{opacity:.12}to{opacity:.5}}
 @keyframes glitter-drift{0%{transform:translate(0,0);opacity:0}15%{opacity:.85}38%{opacity:.35}57%{opacity:.95}80%{opacity:.5}100%{transform:translate(var(--drift),80vh) rotate(300deg);opacity:0}}
-@media(prefers-reduced-motion:reduce){#party-effects,.mirror-rays,.mirror-glow{animation:none}.mirror-rays{opacity:.3}.mirror-glow{opacity:.06}#party-glitter i{display:none}}
+@media(prefers-reduced-motion:reduce){#party-effects,.mirror-rays,.mirror-glow{animation:none}.mirror-rays{opacity:.3}.mirror-glow{opacity:.06}#party-glitter i,#page-glitter i{display:none}}
 
-#party-glitter i:nth-child(3n){clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
-#party-glitter i:nth-child(3n + 1){height:calc(var(--size)*.65)}
+#party-glitter i:nth-child(3n),#page-glitter i:nth-child(3n){clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
+#party-glitter i:nth-child(3n + 1),#page-glitter i:nth-child(3n + 1){height:calc(var(--size)*.65)}
 
 #game.party-dancing .scene{transition:opacity .7s ease-in-out}
+
+/* After the finale settles, glitter spreads across the whole page behind the game. */
+main{position:relative;z-index:1}
+#page-glitter{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen;animation:party-effects-in 1.5s ease both}
+#page-glitter i{top:-4vh;animation-name:page-glitter-drift}
+@keyframes page-glitter-drift{0%{transform:translate(0,0);opacity:0}15%{opacity:.85}38%{opacity:.35}57%{opacity:.95}80%{opacity:.5}100%{transform:translate(var(--drift),108vh) rotate(300deg);opacity:0}}

@@ -207,6 +207,21 @@
     spark.style.cssText = `--x:${(i * 37 + 11) % 100}%;--drift:${(i % 2 ? 1 : -1) * (25 + i % 55)}px;--duration:${10 + i % 10}s;--delay:-${i * 1.73}s;--size:${8 + i % 11}px;--tone:${i % 3 === 0 ? '#edb6c5' : '#f6dba5'}`;
     $('party-glitter').appendChild(spark);
   }
+  // Page-wide glitter keeps the in-game density: flake count scales with viewport area.
+  function showPageGlitter() {
+    const layer = $('page-glitter');
+    if (!layer.hidden) return;
+    const game = $('game').getBoundingClientRect();
+    const count = Math.round(150 * innerWidth * innerHeight / (game.width * game.height));
+    // Longer fall distance (108vh vs 80vh) keeps the in-game falling speed.
+    for (let i = 0; i < count; i++) {
+      const spark = document.createElement('i');
+      const duration = (10 + i % 10) * 108 / 80;
+      spark.style.cssText = `--x:${(i * 37 + 11) % 100 + (i * 0.618 % 1)}%;--drift:${(i % 2 ? 1 : -1) * (25 + i % 55)}px;--duration:${duration}s;--delay:-${(i * 1.73) % duration}s;--size:${8 + i % 11}px;--tone:${i % 3 === 0 ? '#edb6c5' : '#f6dba5'}`;
+      layer.appendChild(spark);
+    }
+    layer.hidden = false;
+  }
   const endingWait = ms => new Promise(resolve => setTimeout(resolve, ms));
   function schedulePartyDance() {
     setTimeout(() => {
@@ -246,6 +261,7 @@
     render();
     $('birthday-ending').classList.add('show-music');
     $('music-toggle').inert = false;
+    showPageGlitter();
     title.focus({preventScroll:true});
   }
   $('music-toggle').inert = true;
@@ -571,6 +587,7 @@
     $('birthday-ending').classList.add('show-signature', 'show-music');
     $('music-toggle').inert = false;
     $('music-toggle').textContent = 'Play music';
+    showPageGlitter();
   }
   render();
 })();
